@@ -1,13 +1,18 @@
 import { useSelector } from 'react-redux';
-import { selectFilteredContacts } from 'redux/selectors';
+import { selectFilterValue, selectFilteredContacts } from 'redux/selectors';
 import { ContactItem } from 'components/ContactItem/ContactItem';
 import { List } from './ContactList.styled';
 
-export const ContactList = () => {
-  const contacts = useSelector(selectFilteredContacts);
+export const ContactList = ({ mycontacts = [] }) => {
+  const filterValue = useSelector(selectFilterValue);
+  const filteredContacts = selectFilteredContacts(mycontacts, filterValue);
+  const sortedContacts = filteredContacts.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
   return (
     <List>
-      {contacts.map(({ id, name, phone }) => (
+      {sortedContacts.map(({ id, name, phone }) => (
         <ContactItem key={id} id={id} name={name} number={phone} />
       ))}
     </List>

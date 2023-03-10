@@ -11,3 +11,6 @@ export const Notification = item =>
 export function Error() {
   toast.error('Something is wrong. Try again', options);
 }
+export function Success(item, text) {
+  toast.success(`Your contact ${item} was successfully ${text}`, options);
+}

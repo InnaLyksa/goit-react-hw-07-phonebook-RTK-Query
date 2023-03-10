@@ -1,10 +1,8 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from 'redux/operations';
-import { selectContacts } from 'redux/selectors';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { nanoid } from 'nanoid';
-import { Notification } from '../utils/notifications';
+import { Notification, Success, Error } from '../utils/notifications';
+
 import {
   FormAddContact,
   LabelContactForm,
@@ -12,6 +10,10 @@ import {
   ButtonSubmit,
   MessageError,
 } from './ContactForm.styled';
+import {
+  useAddContactMutation,
+  useFetchContactsQuery,
+} from 'redux/contactRTKSlice';
 
 const nameInputId = nanoid();
 const numberInputId = nanoid();
@@ -45,14 +47,14 @@ const initialValues = {
 };
 
 export const ContactForm = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(selectContacts);
+  const { data: mycontacts } = useFetchContactsQuery();
+  const [addContact] = useAddContactMutation();
 
-  const handleSubmit = (values, { resetForm }) => {
-    const isDublicateName = contacts.find(
+  const handleSubmit = async (values, { resetForm }) => {
+    const isDublicateName = mycontacts.find(
       ({ name }) => name.toLowerCase() === values.name.toLowerCase()
     );
-    const isDublicateNumber = contacts.find(
+    const isDublicateNumber = mycontacts.find(
       ({ phone }) => phone === values.phone
     );
     if (isDublicateName) {
@@ -62,9 +64,13 @@ export const ContactForm = () => {
         return Notification(values.phone);
       }
     }
-    console.log(values);
-    dispatch(addContact(values));
-    resetForm();
+    try {
+      await addContact(values);
+      Success(values.name, 'added to phonebook');
+      resetForm();
+    } catch (error) {
+      Error();
+    }
   };
   return (
     <Formik

@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
+import { useDeleteContactMutation } from 'redux/contactRTKSlice';
 import { ReactComponent as Phone } from '../../icons/phone.svg';
-import { useDispatch } from 'react-redux';
-import { deleteContact } from 'redux/operations';
+
 import { ContactListItem, ContactText, DeleteBtn } from './ContactItem.styled';
+import { Success } from '../utils/notifications';
 
 export const ContactItem = ({ id, name, number }) => {
-  const dispatch = useDispatch();
+  const [deleteContact, { isLoading }] = useDeleteContactMutation();
   return (
     <ContactListItem>
       <ContactText href={`tel:${number}`}>
@@ -13,7 +14,14 @@ export const ContactItem = ({ id, name, number }) => {
         {name}: {number}
       </ContactText>
 
-      <DeleteBtn type={'button'} onClick={() => dispatch(deleteContact(id))}>
+      <DeleteBtn
+        type={'button'}
+        onClick={() => {
+          deleteContact(id);
+          Success(name, 'deleted!');
+        }}
+        disabled={isLoading}
+      >
         Delete
       </DeleteBtn>
     </ContactListItem>
